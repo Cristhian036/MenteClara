@@ -1,0 +1,6 @@
+{
+  "name": "MenteClara",
+  "description": "Gestión del tiempo y carga mental para universitarios, con diseño empático y psicología del color para mitigar la ansiedad académica.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
