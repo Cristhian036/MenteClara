@@ -16,8 +16,6 @@ import {
   createFocusSessionInDB
 } from '../src/db/tasks.ts';
 
-import { pool } from '../src/db/index.ts';
-
 dotenv.config();
 
 async function startServer() {
@@ -30,10 +28,10 @@ async function startServer() {
   // Registrar todas las peticiones y respuestas de la API
   app.use('/api', (req, res, next) => {
     const authHeader = req.headers.authorization || '';
-    const maskedAuth = authHeader 
-      ? (authHeader.startsWith('Bearer ') 
-          ? `Bearer ${authHeader.slice(7, 17)}... (length: ${authHeader.length - 7})` 
-          : `Invalid format: ${authHeader.slice(0, 10)}...`)
+    const maskedAuth = authHeader
+      ? (authHeader.startsWith('Bearer ')
+        ? `Bearer ${authHeader.slice(7, 17)}... (length: ${authHeader.length - 7})`
+        : `Invalid format: ${authHeader.slice(0, 10)}...`)
       : 'None';
 
     console.log(`[API REQUEST] ${req.method} ${req.originalUrl} - Auth Header: ${maskedAuth}`);
@@ -53,18 +51,7 @@ async function startServer() {
     next();
   });
 
-  // Health check endpoint para Render y clientes móviles
-  app.get('/api/health', async (_req, res) => {
-    try {
-      await pool.query('SELECT 1');
-      res.json({ status: 'ok', db: 'connected', timestamp: new Date().toISOString() });
-    } catch (err: any) {
-      res.status(500).json({ status: 'error', db: 'disconnected', error: err.message });
-    }
-  });
-
   // Endpoint público de registro local
-
   app.post('/api/auth/register-local', async (req, res) => {
     try {
       const { email, password, name } = req.body;

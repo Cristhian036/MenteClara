@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MenteClara</string>
+    <string name="title_activity_main">MenteClara</string>
+    <string name="package_name">com.menteclara.app</string>
+    <string name="custom_url_scheme">com.menteclara.app</string>
+</resources>

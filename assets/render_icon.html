@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 1024px;
+    height: 1024px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .icon-container {
+    width: 768px;
+    height: 768px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+  img {
+    width: 580px;
+    height: 580px;
+    filter: invert(1) drop-shadow(0 0 20px rgba(99, 102, 241, 0.6));
+  }
+</style>
+</head>
+<body>
+  <div class="icon-container">
+    <img src="../public/favicon.svg" />
+  </div>
+</body>
+</html>

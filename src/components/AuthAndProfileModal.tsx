@@ -15,6 +15,7 @@ import {
   ExternalLink,
   ShieldAlert
 } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
 import {
   auth,
   loginWithGoogle,
@@ -24,6 +25,7 @@ import {
   signOut,
   User as FirebaseUser
 } from '../lib/auth.ts';
+
 
 interface AuthAndProfileModalProps {
   isOpen: boolean;
@@ -146,7 +148,7 @@ export default function AuthAndProfileModal({
       if (err.code === 'auth/operation-not-allowed' || err.message?.includes('operation-not-allowed')) {
         setError('firebase-google-disabled');
       } else {
-        setError('No se pudo conectar con Google.');
+        setError(err?.message || 'Google Web Auth no está disponible en la App Móvil. Por favor usa el registro con Correo y Contraseña.');
       }
     } finally {
       setLoading(false);
@@ -383,27 +385,31 @@ export default function AuthAndProfileModal({
                 </button>
               </form>
 
-              {/* Divider */}
-              <div className="flex items-center gap-3 my-4">
-                <div className={`h-px flex-1 ${isNightMode ? 'bg-slate-800' : 'bg-neutral-200'}`} />
-                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">O regístrate con</span>
-                <div className={`h-px flex-1 ${isNightMode ? 'bg-slate-800' : 'bg-neutral-200'}`} />
-              </div>
+              {/* Google Button - Visible ONLY on Web, hidden on Native APK */}
+              {!Capacitor.isNativePlatform() && (
+                <>
+                  <div className="flex items-center gap-3 my-4">
+                    <div className={`h-px flex-1 ${isNightMode ? 'bg-slate-800' : 'bg-neutral-200'}`} />
+                    <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">O regístrate con</span>
+                    <div className={`h-px flex-1 ${isNightMode ? 'bg-slate-800' : 'bg-neutral-200'}`} />
+                  </div>
 
-              {/* Google Button */}
-              <button
-                type="button"
-                onClick={handleGoogleAuth}
-                disabled={loading}
-                className={`w-full py-2.5 rounded-xl border font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                  isNightMode
-                    ? 'bg-slate-950/30 border-slate-800 hover:bg-slate-850 text-slate-300'
-                    : 'bg-white border-neutral-200 hover:bg-neutral-50 text-neutral-700'
-                }`}
-              >
-                <Sparkles className="w-4 h-4 text-teal-400 animate-pulse" />
-                <span>Iniciar con Google</span>
-              </button>
+                  <button
+                    type="button"
+                    onClick={handleGoogleAuth}
+                    disabled={loading}
+                    className={`w-full py-2.5 rounded-xl border font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      isNightMode
+                        ? 'bg-slate-950/30 border-slate-800 hover:bg-slate-850 text-slate-300'
+                        : 'bg-white border-neutral-200 hover:bg-neutral-50 text-neutral-700'
+                    }`}
+                  >
+                    <Sparkles className="w-4 h-4 text-teal-400 animate-pulse" />
+                    <span>Iniciar con Google</span>
+                  </button>
+                </>
+              )}
+
             </div>
           ) : (
             /* ================= SIGNED IN VIEW (PROFILE CONFIGURATION) ================= */

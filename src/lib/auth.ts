@@ -57,26 +57,26 @@ class CustomAuth {
       },
       body: JSON.stringify({ email, password: pass })
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.error || 'Correo o contraseña incorrectos.');
     }
-    
+
     const dbUser = await response.json();
-    
+
     const userSession = {
       uid: dbUser.uid,
       email: dbUser.email,
       displayName: dbUser.displayName || 'Usuario MenteClara',
       photoURL: null
     };
-    
+
     this.currentUser = {
       ...userSession,
       getIdToken: async () => userSession.uid
     };
-    
+
     localStorage.setItem('menteclara_auth_session', JSON.stringify(userSession));
     this.notify();
     return this.currentUser;
@@ -90,26 +90,26 @@ class CustomAuth {
       },
       body: JSON.stringify({ email, password: pass, name })
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.error || 'No se pudo crear el usuario.');
     }
-    
+
     const dbUser = await response.json();
-    
+
     const userSession = {
       uid: dbUser.uid,
       email: dbUser.email,
       displayName: dbUser.displayName || name,
       photoURL: null
     };
-    
+
     this.currentUser = {
       ...userSession,
       getIdToken: async () => userSession.uid
     };
-    
+
     localStorage.setItem('menteclara_auth_session', JSON.stringify(userSession));
     this.notify();
     return this.currentUser;
@@ -118,11 +118,34 @@ class CustomAuth {
   async loginWithGoogle() {
     return new Promise<any>((resolve, reject) => {
       if (!(window as any).google?.accounts?.oauth2) {
-        reject(new Error('El SDK de Google no está cargado. Inténtalo de nuevo en unos segundos.'));
-        return;
+        // Cargar dinámicamente el SDK de Google si aún no está en window
+        const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+        if (!existingScript) {
+          const script = document.createElement('script');
+          script.src = 'https://accounts.google.com/gsi/client';
+          script.async = true;
+          script.defer = true;
+          script.onload = () => {
+            this.loginWithGoogle().then(resolve).catch(reject);
+          };
+          script.onerror = () => {
+            reject(new Error('En la App Móvil APK por favor utiliza el registro o inicio de sesión con Correo y Contraseña.'));
+          };
+          document.head.appendChild(script);
+          return;
+        } else {
+          reject(new Error('Cargando servicios de Google... Por favor presiona el botón nuevamente.'));
+          return;
+        }
       }
+
       try {
-        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '852904145627-1arg5h94f2mpojgcgqhn59fg8c9c1kov.apps.googleusercontent.com';
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+        if (!clientId) {
+          reject(new Error('VITE_GOOGLE_CLIENT_ID no está configurado en las variables de entorno (.env).'));
+          return;
+        }
+
         const client = (window as any).google.accounts.oauth2.initTokenClient({
           client_id: clientId,
           scope: 'email profile openid',
@@ -138,7 +161,7 @@ class CustomAuth {
                 throw new Error('No se pudo recuperar la información de perfil desde Google.');
               }
               const profile = await userInfoRes.json();
-              
+
               const userSession = {
                 uid: profile.sub,
                 email: profile.email,
@@ -146,12 +169,12 @@ class CustomAuth {
                 photoURL: profile.picture || null,
                 token: profile.sub // pass 'sub' as Bearer token
               };
-              
+
               this.currentUser = {
                 ...userSession,
                 getIdToken: async () => userSession.token
               };
-              
+
               localStorage.setItem('menteclara_auth_session', JSON.stringify(userSession));
               this.notify();
               resolve(this.currentUser);
@@ -209,7 +232,7 @@ class CustomAuth {
       displayName: updated.displayName,
       photoURL: updated.photoURL
     }));
-    
+
     const usersStr = localStorage.getItem('menteclara_local_users') || '[]';
     const users = JSON.parse(usersStr);
     const index = users.findIndex((u: any) => u.uid === updated.uid);
