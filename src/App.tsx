@@ -17,7 +17,10 @@ import { auth, loginWithGoogle, onAuthStateChanged, signOut } from './lib/auth.t
 const getApiBase = (): string => {
   const url = import.meta.env.VITE_API_URL;
   if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
-    return url;
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && url.includes('localhost')) {
+      return '';
+    }
+    return url.replace(/\/+$/, '');
   }
   return '';
 };
